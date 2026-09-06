@@ -55,3 +55,25 @@ Review them before use.
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## OpenAlex query completeness
+
+OpenAlex summaries require a validated API count, complete pagination and unique
+work IDs. Queries exceeding `--max-works`, changing counts, repeated cursors,
+duplicate works or premature cursor exhaustion fail without emitting a trend.
+Successful output includes matched/fetched counts and `truncated: false`.
+
+This change addresses completeness only. Citation counts remain cumulative by
+publication cohort, not a fixed post-publication citation-velocity measure; the
+latest incomplete calendar year also needs separate analytical treatment.
+
+## Regression tests
+
+Run offline with Python 3.10 or newer (standard library only):
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+Tests use synthetic fixtures and mocked APIs; they do not certify live endpoint
+availability or current regulatory facts. GitHub Actions runs the same tests on PRs.
