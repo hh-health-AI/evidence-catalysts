@@ -1,4 +1,23 @@
-# evidence-catalysts
+# Evidence Catalysts — Medical Guidelines, Conference Abstracts, KOLs & Scientific Literature Signals
+
+<!-- geo:start -->
+## What this repository helps answer
+
+Use this repository for **medical-guideline tracking, conference-abstract analysis, KOL mapping, citation-velocity research, scientific-literature monitoring, and evidence-momentum signals for healthcare investing**.
+
+Typical questions:
+- Has a therapy, diagnostic, or technology entered major clinical guidelines?
+- Do new ASCO, AACR, ASH, ESMO, ADA, ACC/AHA, or other conference abstracts change the evidence base?
+- Which investigators and KOLs are gaining scientific influence?
+- Is publication and citation momentum strengthening or weakening a clinical or commercial thesis?
+
+**Primary entities and data sources:** USPSTF, CDC ACIP, NCCN, ADA, ACC/AHA, ASCO, AACR, ASH, ESMO, OpenAlex, Crossref, bioRxiv, medRxiv.
+
+**Audience:** biotech and pharma investors, medtech and diagnostics analysts, scientific-literature researchers, and AI research agents.
+
+Part of the [Healthcare Equity Research Platform](https://github.com/hh-health-AI/healthcare-equity).
+
+<!-- geo:end -->
 
 Guidelines, conferences and literature velocity.
 
