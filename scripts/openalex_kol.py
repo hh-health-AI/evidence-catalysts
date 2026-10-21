@@ -46,14 +46,39 @@ def main():
     ap.add_argument("--authors", action="store_true")
     ap.add_argument("--top", type=int, default=20)
     a = ap.parse_args()
+    if a.max_works < 1:
+        ap.error("--max-works must be positive")
 
-    works, cursor = [], "*"
+    works, cursor, total = [], "*", None
+    cursors, work_ids = set(), set()
     while len(works) < a.max_works and cursor:
-        page = get(build(a.concept, a.from_year, a.to_year, cursor))
-        works.extend(page.get("results") or [])
+        if cursor in cursors:
+            ap.exit(2, "Repeated cursor; incomplete results discarded.\n")
+        cursors.add(cursor)
+        page = get(build(a.concept, a.from_year, a.to_year, cursor,
+                         min(200, a.max_works - len(works))))
+        matched = (page.get("meta") or {}).get("count")
+        if not isinstance(matched, int) or isinstance(matched, bool) or matched < 0:
+            ap.exit(2, "Missing/invalid API count; completeness cannot be established.\n")
+        if total is not None and total != matched:
+            ap.exit(2, "Result count changed during pagination; retry the query.\n")
+        total = matched
+        if total > a.max_works:
+            ap.exit(2, f"TRUNCATED: {total} matches exceed --max-works {a.max_works}; narrow the query or raise the cap.\n")
+        batch = page.get("results")
+        if not isinstance(batch, list) or any(not isinstance(w, dict) or not w.get("id") for w in batch):
+            ap.exit(2, "Unexpected work schema; partial output discarded.\n")
+        for w in batch:
+            if w["id"] in work_ids:
+                ap.exit(2, "Duplicate work across pages; trend would double-count.\n")
+            work_ids.add(w["id"])
+        works.extend(batch)
         cursor = (page.get("meta") or {}).get("next_cursor")
         if not page.get("results"):
             break
+
+    if len(works) != total:
+        ap.exit(2, "Incomplete pagination; no population trend returned.\n")
 
     if not works:
         sys.stderr.write("No works returned. Broaden the concept or check spelling.\n")
@@ -96,7 +121,8 @@ def main():
         d0 = trend[-2]["works"] - trend[-3]["works"]
         accel = d1 - d0
 
-    out = {"concept": a.concept, "works_examined": len(works)}
+    out = {"concept": a.concept, "works_examined": len(works),
+           "coverage": {"matched": total, "fetched": len(works), "truncated": False}}
     if a.trend or not a.authors:
         out.update({
             "trend": trend,
